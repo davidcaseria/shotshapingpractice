@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shotshapingpractice/components.dart';
+import 'package:shotshapingpractice/db.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -30,17 +31,62 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class WarmUpScreen extends StatelessWidget {
+class WarmUpScreen extends StatefulWidget {
   const WarmUpScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _WarmUpScreenState();
+}
+
+class _WarmUpScreenState extends State<WarmUpScreen> {
+  Direction startDirection = DirectionExt.random();
+  int session = DateTime.now().millisecondsSinceEpoch;
+  int score = 0;
+  int shot = 0;
+
+  Future<int> _saveShot(Direction direction) async {
+    final provider = await DatabaseProvider.getInstance();
+    return await WarmUpShot(session, startDirection, direction)
+        .save(provider.db);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-            child: ElevatedButton(
-      onPressed: () => Navigator.pop(context),
-      child: const Text('Warm Up Screen'),
-    )));
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Scorecard(score: score, shot: shot),
+              DirectionCard(
+                  callback: (direction) {
+                    _saveShot(direction);
+                    int points = 0;
+                    if (direction == startDirection) {
+                      points++;
+                    }
+                    setState(() {
+                      score += points;
+                      shot++;
+                      startDirection = DirectionExt.random();
+                    });
+                  },
+                  label: 'Start Direction',
+                  direction: startDirection),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Text(
+                      'End Session',
+                      style: TextStyle(fontSize: 24),
+                    )),
+              )
+            ]),
+      ),
+    );
   }
 }
 
