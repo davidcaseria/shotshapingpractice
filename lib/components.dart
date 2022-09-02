@@ -75,22 +75,18 @@ class ScorecardItem extends StatelessWidget {
 
 typedef DirectionCallback = Function(Direction direction);
 
-class DirectionCard extends StatefulWidget {
+class DirectionCard extends StatelessWidget {
   final DirectionCallback callback;
   final String label;
-  final Direction direction;
+  final Direction expectedDirection;
+  final Direction? actualDirection;
   const DirectionCard(
       {super.key,
       required this.callback,
       required this.label,
-      required this.direction});
+      required this.expectedDirection,
+      this.actualDirection});
 
-  @override
-  State<StatefulWidget> createState() => _DirectionCardState();
-}
-
-class _DirectionCardState extends State<DirectionCard> {
-  Direction? actualDirection;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -98,13 +94,13 @@ class _DirectionCardState extends State<DirectionCard> {
         Padding(
             padding: const EdgeInsets.all(10),
             child: Text(
-              widget.label,
+              label,
               style: Theme.of(context).textTheme.headline4,
             )),
         Padding(
             padding: const EdgeInsets.all(10),
             child: Text(
-              widget.direction.label(),
+              expectedDirection.label(),
               style: Theme.of(context)
                   .textTheme
                   .headline3
@@ -113,11 +109,8 @@ class _DirectionCardState extends State<DirectionCard> {
         Padding(
             padding: const EdgeInsets.all(10),
             child: DirectionCardRadioGroup(
-                callback: (direction) => setState(() {
-                      actualDirection = direction;
-                      widget.callback(direction);
-                    }),
-                expectedDirection: widget.direction,
+                callback: callback,
+                expectedDirection: expectedDirection,
                 actualDirection: actualDirection))
       ],
     );

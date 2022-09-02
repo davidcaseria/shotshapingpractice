@@ -39,14 +39,14 @@ class WarmUpScreen extends StatefulWidget {
 }
 
 class _WarmUpScreenState extends State<WarmUpScreen> {
-  Direction startDirection = DirectionExt.random();
+  Direction expectedStartDirection = DirectionExt.random();
   int session = DateTime.now().millisecondsSinceEpoch;
   int score = 0;
   int shot = 0;
 
   Future<int> _saveShot(Direction direction) async {
     final provider = await DatabaseProvider.getInstance();
-    return await WarmUpShot(session, startDirection, direction)
+    return await WarmUpShot(session, expectedStartDirection, direction)
         .save(provider.db);
   }
 
@@ -64,17 +64,17 @@ class _WarmUpScreenState extends State<WarmUpScreen> {
                   callback: (direction) {
                     _saveShot(direction);
                     int points = 0;
-                    if (direction == startDirection) {
+                    if (direction == expectedStartDirection) {
                       points++;
                     }
                     setState(() {
                       score += points;
                       shot++;
-                      startDirection = DirectionExt.random();
+                      expectedStartDirection = DirectionExt.random();
                     });
                   },
                   label: 'Start Direction',
-                  direction: startDirection),
+                  expectedDirection: expectedStartDirection),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Padding(
