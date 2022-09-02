@@ -90,17 +90,101 @@ class _WarmUpScreenState extends State<WarmUpScreen> {
   }
 }
 
-class PracticeScreen extends StatelessWidget {
+class PracticeScreen extends StatefulWidget {
   const PracticeScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() =>
+      _PracticeScreenState(DirectionExt.random());
+}
+
+class _PracticeScreenState extends State<PracticeScreen> {
+  Direction expectedStartDirection;
+  Direction? actualStartDirection;
+  Direction expectedCurveDirection;
+  Direction? actualCurveDirection;
+  int session = DateTime.now().millisecondsSinceEpoch;
+  int score = 0;
+  int shot = 0;
+
+  _PracticeScreenState(this.expectedStartDirection)
+      : expectedCurveDirection = expectedStartDirection.opposite();
+
+  _nextShot() {
+    if (actualStartDirection != null && actualCurveDirection != null) {
+      _saveShot(PracticeShot(
+          session,
+          expectedStartDirection,
+          actualStartDirection!,
+          expectedCurveDirection,
+          actualCurveDirection!));
+      int points = 0;
+      if (actualStartDirection == expectedStartDirection) {
+        points++;
+      }
+      if (actualCurveDirection == expectedCurveDirection) {
+        points++;
+      }
+      setState(() {
+        score += points;
+        shot++;
+        expectedStartDirection = DirectionExt.random();
+        expectedCurveDirection = expectedStartDirection.opposite();
+        actualStartDirection = null;
+        actualCurveDirection = null;
+      });
+    }
+  }
+
+  Future<int> _saveShot(PracticeShot shot) async {
+    final provider = await DatabaseProvider.getInstance();
+    return await shot.save(provider.db);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-            child: ElevatedButton(
-      onPressed: () => Navigator.pop(context),
-      child: const Text('Practice Screen'),
-    )));
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Scorecard(score: score, shot: shot),
+              DirectionCard(
+                callback: (direction) {
+                  setState(() {
+                    actualStartDirection = direction;
+                    _nextShot();
+                  });
+                },
+                label: 'Start Direction',
+                expectedDirection: expectedStartDirection,
+                actualDirection: actualStartDirection,
+              ),
+              DirectionCard(
+                callback: (direction) {
+                  setState(() {
+                    actualCurveDirection = direction;
+                    _nextShot();
+                  });
+                },
+                label: 'Curve Direction',
+                expectedDirection: expectedCurveDirection,
+                actualDirection: actualCurveDirection,
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Text(
+                      'End Session',
+                      style: TextStyle(fontSize: 24),
+                    )),
+              )
+            ]),
+      ),
+    );
   }
 }
 

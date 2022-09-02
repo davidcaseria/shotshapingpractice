@@ -66,6 +66,9 @@ extension DirectionExt on Direction {
 
   String label() =>
       '${name[0].toUpperCase()}${name.substring(1).toLowerCase()}';
+
+  Direction opposite() =>
+      (this == Direction.left) ? Direction.right : Direction.left;
 }
 
 class WarmUpShot {
@@ -135,10 +138,10 @@ class PracticeShot {
   Map<String, dynamic> toMap() {
     return {
       PracticeShotModel.sessionColumn: session,
-      PracticeShotModel.expectedStartColumn: expectedStart,
-      PracticeShotModel.actualStartColumn: actualStart,
-      PracticeShotModel.expectedCurveColumn: expectedCurve,
-      PracticeShotModel.actualCurveColumn: actualCurve,
+      PracticeShotModel.expectedStartColumn: expectedStart.name,
+      PracticeShotModel.actualStartColumn: actualStart.name,
+      PracticeShotModel.expectedCurveColumn: expectedCurve.name,
+      PracticeShotModel.actualCurveColumn: actualCurve.name,
       PracticeShotModel.pointsColumn: points,
     };
   }
