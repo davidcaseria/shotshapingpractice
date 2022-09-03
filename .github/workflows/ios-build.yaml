@@ -42,7 +42,7 @@ jobs:
         run: flutter pub get 
       
       - name: Build IPA
-        run: flutter build ipa --release --export-options-plist=ios/Runner/ExportOptions.plist
+        run: flutter build ipa --release --export-method ad-hoc
           
       - name: Collect IPA artifacts
         uses: actions/upload-artifact@v2
