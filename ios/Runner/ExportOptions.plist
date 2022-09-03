@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>adhoc</string>
+	<key>teamID</key>
+	<string>YF7HP5P49C</string>
+	<key>uploadBitcode</key>
+	<true/>
+	<key>compileBitcode</key>
+	<true/>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>signingCertificate</key>
+	<string>David Caseria</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>io.github.davidcaseria.shotshapingpractice</key>
+		<string>Shot Shaping Practice</string>
+	</dict>
+</dict>
+</plist>
