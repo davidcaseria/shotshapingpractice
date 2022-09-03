@@ -161,3 +161,33 @@ class PracticeShotModel {
   static const actualCurveColumn = 'actual_curve';
   static const pointsColumn = 'points';
 }
+
+class ShotStatsModel {
+  static Future<num?> getWarmUpPct(Direction direction) async {
+    final provider = await DatabaseProvider.getInstance();
+    final res = await provider.db.rawQuery('''
+      SELECT sum(${WarmUpShotModel.pointsColumn}) / (1.0 * count(${WarmUpShotModel.idColumn})) AS pct
+      FROM ${WarmUpShotModel.table}
+      WHERE ${WarmUpShotModel.expectedStartColumn} = '${direction.name}'
+    ''');
+    if (res.isEmpty || res[0]['pct'] == null) {
+      return null;
+    } else {
+      return res[0]['pct'] as num;
+    }
+  }
+
+  static Future<num?> getPracticePct(Direction direction) async {
+    final provider = await DatabaseProvider.getInstance();
+    final res = await provider.db.rawQuery('''
+      SELECT sum(${PracticeShotModel.pointsColumn}) / (2.0 * count(${PracticeShotModel.idColumn})) AS pct
+      FROM ${PracticeShotModel.table}
+      WHERE ${PracticeShotModel.expectedStartColumn} = '${direction.name}'
+    ''');
+    if (res.isEmpty || res[0]['pct'] == null) {
+      return null;
+    } else {
+      return res[0]['pct'] as num;
+    }
+  }
+}

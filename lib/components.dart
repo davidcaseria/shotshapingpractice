@@ -177,3 +177,44 @@ class DirectionCardRadioButton extends StatelessWidget {
             )));
   }
 }
+
+class StatsItem extends StatelessWidget {
+  final String label;
+  final num? value;
+  const StatsItem({super.key, required this.label, this.value});
+
+  Color _color() {
+    if (value == null) {
+      return Colors.black;
+    } else if (value! < 0.5) {
+      return Colors.red;
+    } else if (value! > 0.75) {
+      return Colors.green;
+    } else {
+      return Colors.black;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+            padding: const EdgeInsets.all(10),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.headline4,
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10),
+            child: Text(
+              (value != null) ? '${(value! * 100).toStringAsFixed(0)}%' : '--',
+              style:
+                  Theme.of(context).textTheme.headline3?.apply(color: _color()),
+            )),
+      ],
+    );
+  }
+}

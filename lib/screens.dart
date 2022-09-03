@@ -44,10 +44,9 @@ class _WarmUpScreenState extends State<WarmUpScreen> {
   int score = 0;
   int shot = 0;
 
-  Future<int> _saveShot(Direction direction) async {
+  Future<int> _saveShot(WarmUpShot shot) async {
     final provider = await DatabaseProvider.getInstance();
-    return await WarmUpShot(session, expectedStartDirection, direction)
-        .save(provider.db);
+    return await shot.save(provider.db);
   }
 
   @override
@@ -62,7 +61,8 @@ class _WarmUpScreenState extends State<WarmUpScreen> {
               Scorecard(score: score, shot: shot),
               DirectionCard(
                   callback: (direction) {
-                    _saveShot(direction);
+                    _saveShot(
+                        WarmUpShot(session, expectedStartDirection, direction));
                     int points = 0;
                     if (direction == expectedStartDirection) {
                       points++;
@@ -188,16 +188,111 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 }
 
-class ViewStatsScreen extends StatelessWidget {
+class ViewStatsScreen extends StatefulWidget {
   const ViewStatsScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ViewStatsScreenState();
+}
+
+class _ViewStatsScreenState extends State<ViewStatsScreen> {
+  final Future<List<num?>> data = Future.wait([
+    ShotStatsModel.getWarmUpPct(Direction.left),
+    ShotStatsModel.getWarmUpPct(Direction.right),
+    ShotStatsModel.getPracticePct(Direction.left),
+    ShotStatsModel.getPracticePct(Direction.right),
+  ]);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-            child: ElevatedButton(
-      onPressed: () => Navigator.pop(context),
-      child: const Text('View Stats Screen'),
-    )));
+      body: FutureBuilder<List<num?>>(
+        future: data,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Text(
+                    'Warm Up Stats',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline2!
+                        .apply(color: Colors.black),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      StatsItem(label: 'Left', value: snapshot.data![0]),
+                      StatsItem(label: 'Right', value: snapshot.data![1]),
+                    ],
+                  ),
+                  Text(
+                    'Practice Stats',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline2!
+                        .apply(color: Colors.black),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      StatsItem(label: 'Left/Right', value: snapshot.data![2]),
+                      StatsItem(label: 'Right/Left', value: snapshot.data![3]),
+                    ],
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(40),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        child: const Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10),
+                            child: Text(
+                              'Back',
+                              style: TextStyle(fontSize: 24),
+                            )),
+                      ))
+                ]);
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 60,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: const <Widget>[
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text('Calculating Stats...'),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
 }
