@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:math';
 
@@ -26,10 +27,13 @@ class DatabaseProvider {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
+    developer.log('opening db', name: 'db');
     return await openDatabase(_name, version: _version, onCreate: _onCreate);
   }
 
   static Future _onCreate(Database db, int version) async {
+    developer.log('creating db', name: 'db');
+    developer.log('creating ${WarmUpShotModel.table}', name: 'db');
     await db.execute('''
           CREATE TABLE ${WarmUpShotModel.table} (
             ${WarmUpShotModel.idColumn} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +42,10 @@ class DatabaseProvider {
             ${WarmUpShotModel.actualStartColumn} VARCHAR NOT NULL,
             ${WarmUpShotModel.pointsColumn} INTEGER NOT NULL
           );
-          
+          ''');
+
+    developer.log('creating ${PracticeShotModel.table}', name: 'db');
+    await db.execute('''
           CREATE TABLE ${PracticeShotModel.table} (
             ${PracticeShotModel.idColumn} INTEGER PRIMARY KEY AUTOINCREMENT,
             ${PracticeShotModel.sessionColumn} INTEGER NOT NULL,

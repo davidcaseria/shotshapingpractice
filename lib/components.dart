@@ -170,7 +170,7 @@ class DirectionCardRadioButton extends StatelessWidget {
     return OutlinedButton(
         onPressed: () => callback(),
         child: Padding(
-            padding: const EdgeInsets.all(50),
+            padding: const EdgeInsets.all(25),
             child: Text(
               direction.label(),
               style: TextStyle(fontSize: 24, color: color),
